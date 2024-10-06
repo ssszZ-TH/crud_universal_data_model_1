@@ -24,3 +24,13 @@
 
 - [pdo](https://www.php.net/manual/en/book.pdo.php)
 เป็น engine สำคัญในการต่อ backend กับ database
+
+- [react](https://reactjs.org/)
+เป็น framework ที่ใช้ในการทำ frontend ติดต่อกับ backend เเละผลักภาระในการประมวลผล gui ให้ฝั่ง client
+
+- [vite](https://vite.dev/guide/)
+เป็น tool ที่มาคู่กับ react ทำให้ง่ายกับตัวผม ในการเขียน frontend เพราะมันมี hot module replacement ให้
+
+- [swc](https://www.dhiwise.com/post/maximize-performance-how-swc-enhances-vite-and-react)
+เป็น option ให้เลือกตั้งเเต่ตอน npm create vite ผมไม่เเน่ว่าคืออะไร เเต่ community เขาบอกว่าทำให้ vite เร็วขึ้น เพราะ compiler เป็นภาษา rust
+
