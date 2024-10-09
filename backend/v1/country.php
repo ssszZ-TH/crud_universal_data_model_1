@@ -131,5 +131,3 @@ switch ($method) {
         break;
 }
 ?>
-
-?>
