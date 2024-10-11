@@ -59,10 +59,10 @@ switch ($method) {
             }
 
             // เตรียม statement ตอนเเรกลองเอาประโยค query เก็บในตัวเเปรก่อนค่อยนําไปใช้ จะทำให้ program bug
-            $stmt = $pdo->prepare("INSERT INTO public.citizenship(maritalstatustypeid, fromdate, thrudate) VALUES (?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO public.maritalstatus(maritalstatustypeid, fromdate, thrudate) VALUES (?, ?, ?)");
 
             // Execute คำสั่ง SQL พร้อมข้อมูลที่รับมา
-            $stmt->execute([$data['maritalstatusid'], $data['fromdate'], $data['thrudate']]);
+            $stmt->execute([$data['maritalstatustypeid'], $data['fromdate'], $data['thrudate']]);
 
             // ส่ง response กลับไปว่าเสร็จสิ้น
             sendResponse(201, ['id' => $pdo->lastInsertId()], 'create success');
@@ -80,14 +80,19 @@ switch ($method) {
             $data = json_decode(file_get_contents('php://input'), true);
 
             // ตรวจสอบว่าข้อมูลที่ส่งมามีครบหรือไม่
-            if (isset($data['maritalstatustypeid'] ,$data['fromdate'], $data['thrudate'])) {
+            if (isset($data['maritalstatustypeid'] ,$data['fromdate'])) {
+
+                // handle empty thrudate
+                if (!isset($data['thrudate'])) {
+                    $data['thrudate'] = null;
+                }
 
                 // อัปเดตข้อมูลในฐานข้อมูล
-                $stmt = $pdo->prepare('UPDATE public.maritalstatus SET fromdate = ?, thrudate = ?, countryid = ?, passportid = ? WHERE citizenshipid = ?');
-                $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid'], $id]);
+                $stmt = $pdo->prepare('UPDATE public.maritalstatus SET maritalstatustypeid = ?, fromdate = ?, thrudate = ? WHERE maritalstatusid = ?');
+                $stmt->execute([$data['maritalstatustypeid'], $data['fromdate'], $data['thrudate'], $id]);
 
                 // ดึงข้อมูลที่เพิ่งอัปเดต
-                $selectStmt = $pdo->prepare('SELECT * FROM public.citizenship WHERE citizenshipid = ?');
+                $selectStmt = $pdo->prepare('SELECT * FROM public.maritalstatus WHERE maritalstatustypeid = ?');
                 $selectStmt->execute([$id]);
                 $updatedData = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -108,13 +113,13 @@ switch ($method) {
             $id = $_GET['id'];
 
             // ดึงข้อมูลก่อนลบ
-            $selectStmt = $pdo->prepare('SELECT * FROM public.citizenship WHERE citizenshipid = ?');
+            $selectStmt = $pdo->prepare('SELECT * FROM public.maritalstatus WHERE maritalstatusid = ?');
             $selectStmt->execute([$id]);
             $dataToDelete = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($dataToDelete) {
                 // ลบข้อมูล
-                $stmt = $pdo->prepare('DELETE FROM public.citizenship WHERE citizenshipid = ?');
+                $stmt = $pdo->prepare('DELETE FROM public.maritalstatus WHERE maritalstatusid = ?');
                 $stmt->execute([$id]);
 
                 // ส่ง response กลับไปพร้อมข้อมูลที่ถูกลบ
