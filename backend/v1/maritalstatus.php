@@ -52,7 +52,7 @@ switch ($method) {
         $data = json_decode(file_get_contents('php://input'), true);
 
         // ตรวจสอบว่ามีข้อมูลครบหรือไม่
-        if (isset($data['maritalstatustypeid'] ,$data['fromdate'])) {
+        if (isset($data['maritalstatustypeid'], $data['fromdate'])) {
             // handle empty thrudate
             if (!isset($data['thrudate'])) {
                 $data['thrudate'] = null;
@@ -79,32 +79,41 @@ switch ($method) {
             $id = $_GET['id'];
             $data = json_decode(file_get_contents('php://input'), true);
 
-            // ตรวจสอบว่าข้อมูลที่ส่งมามีครบหรือไม่
-            if (isset($data['maritalstatustypeid'] ,$data['fromdate'])) {
+            // ตรวจสอบว่ามี resource ที่จะทำการอัปเดตหรือไม่
+            $selectStmt = $pdo->prepare('SELECT * FROM public.maritalstatus WHERE maritalstatusid = ?');
+            $selectStmt->execute([$id]);
+            $existingData = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
-                // handle empty thrudate
-                if (!isset($data['thrudate'])) {
-                    $data['thrudate'] = null;
+            if ($existingData) {
+                // ตรวจสอบว่าข้อมูลที่ส่งมามีครบหรือไม่
+                if (isset($data['maritalstatustypeid'], $data['fromdate'])) {
+
+                    // handle empty thrudate
+                    if (!isset($data['thrudate'])) {
+                        $data['thrudate'] = null;
+                    }
+
+                    // อัปเดตข้อมูลในฐานข้อมูล
+                    $stmt = $pdo->prepare('UPDATE public.maritalstatus SET maritalstatustypeid = ?, fromdate = ?, thrudate = ? WHERE maritalstatusid = ?');
+                    $stmt->execute([$data['maritalstatustypeid'], $data['fromdate'], $data['thrudate'], $id]);
+
+                    // ดึงข้อมูลที่เพิ่งอัปเดต
+                    $selectStmt->execute([$id]);
+                    $updatedData = $selectStmt->fetch(PDO::FETCH_ASSOC);
+
+                    // ส่ง response กลับไปพร้อมข้อมูลที่อัปเดต
+                    sendResponse(200, $updatedData, 'Resource updated');
+                } else {
+                    sendResponse(400, [], 'bad request json body invalid');
                 }
-
-                // อัปเดตข้อมูลในฐานข้อมูล
-                $stmt = $pdo->prepare('UPDATE public.maritalstatus SET maritalstatustypeid = ?, fromdate = ?, thrudate = ? WHERE maritalstatusid = ?');
-                $stmt->execute([$data['maritalstatustypeid'], $data['fromdate'], $data['thrudate'], $id]);
-
-                // ดึงข้อมูลที่เพิ่งอัปเดต
-                $selectStmt = $pdo->prepare('SELECT * FROM public.maritalstatus WHERE maritalstatustypeid = ?');
-                $selectStmt->execute([$id]);
-                $updatedData = $selectStmt->fetch(PDO::FETCH_ASSOC);
-
-                // ส่ง response กลับไปพร้อมข้อมูลที่อัปเดต
-                sendResponse(200, $updatedData, 'User updated');
             } else {
-                sendResponse(400, [], 'bad request json body invalid');
+                sendResponse(404, [], 'Resource not found');
             }
         } else {
             sendResponse(400, [], 'bad request: No ID params provided');
         }
         break;
+
 
 
     case 'DELETE':
