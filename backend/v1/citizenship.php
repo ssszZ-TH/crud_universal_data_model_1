@@ -73,33 +73,42 @@ switch ($method) {
         break;
 
 
-    case 'PUT':
-        // ตรวจสอบว่ามีการส่ง ID มาใน query หรือไม่
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
-            $data = json_decode(file_get_contents('php://input'), true);
-
-            // ตรวจสอบว่าข้อมูลที่ส่งมามีครบหรือไม่
-            if (isset($data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid'])) {
-
-                // อัปเดตข้อมูลในฐานข้อมูล
-                $stmt = $pdo->prepare('UPDATE public.citizenship SET fromdate = ?, thrudate = ?, countryid = ?, passportid = ? WHERE citizenshipid = ?');
-                $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid'], $id]);
-
-                // ดึงข้อมูลที่เพิ่งอัปเดต
+        case 'PUT':
+            // ตรวจสอบว่ามีการส่ง ID มาใน query หรือไม่
+            if (isset($_GET['id'])) {
+                $id = $_GET['id'];
+                $data = json_decode(file_get_contents('php://input'), true);
+        
+                // ตรวจสอบว่ามี resource ที่จะทำการอัปเดตหรือไม่
                 $selectStmt = $pdo->prepare('SELECT * FROM public.citizenship WHERE citizenshipid = ?');
                 $selectStmt->execute([$id]);
-                $updatedData = $selectStmt->fetch(PDO::FETCH_ASSOC);
-
-                // ส่ง response กลับไปพร้อมข้อมูลที่อัปเดต
-                sendResponse(200, $updatedData, 'User updated');
+                $existingData = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        
+                if ($existingData) {
+                    // ตรวจสอบว่าข้อมูลที่ส่งมามีครบหรือไม่
+                    if (isset($data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid'])) {
+        
+                        // อัปเดตข้อมูลในฐานข้อมูล
+                        $stmt = $pdo->prepare('UPDATE public.citizenship SET fromdate = ?, thrudate = ?, countryid = ?, passportid = ? WHERE citizenshipid = ?');
+                        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid'], $id]);
+        
+                        // ดึงข้อมูลที่เพิ่งอัปเดต
+                        $selectStmt->execute([$id]);
+                        $updatedData = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        
+                        // ส่ง response กลับไปพร้อมข้อมูลที่อัปเดต
+                        sendResponse(200, $updatedData, 'Resource updated');
+                    } else {
+                        sendResponse(400, [], 'bad request json body invalid');
+                    }
+                } else {
+                    sendResponse(404, [], 'Resource not found');
+                }
             } else {
-                sendResponse(400, [], 'bad request json body invalid');
+                sendResponse(400, [], 'bad request: No ID params provided');
             }
-        } else {
-            sendResponse(400, [], 'bad request: No ID params provided');
-        }
-        break;
+            break;
+        
 
 
     case 'DELETE':
