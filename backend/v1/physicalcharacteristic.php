@@ -6,7 +6,7 @@ header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header("Access-Control-Allow-Credentials: true");
 
-include 'db.php';
+include 'db.php'; ////////////////////////////////////////////////////////////////// ทำต่อ
 
 // กำหนดประเภทของ content ให้เป็น JSON
 header('Content-Type: application/json');
@@ -31,7 +31,7 @@ switch ($method) {
         if (isset($_GET['id'])) {
             // Handle Read by ID
             $id = $_GET['id'];
-            $stmt = $pdo->prepare('SELECT * FROM public.personnametype WHERE personnametypeid = ?');
+            $stmt = $pdo->prepare('SELECT * FROM public.physicalcharacteristic WHERE physicalcharacteristicid = ?');
             $stmt->execute([$id]);
             $citizenships = $stmt->fetch();
             if ($citizenships) {
@@ -41,7 +41,7 @@ switch ($method) {
             }
         } else {
             // Handle Read all
-            $stmt = $pdo->query('SELECT * FROM public.personnametype ORDER BY personnametypeid ASC');
+            $stmt = $pdo->query('SELECT * FROM public.physicalcharacteristic ORDER BY physicalcharacteristicid ASC');
             $citizenships = $stmt->fetchAll();
             sendResponse(200, $citizenships);
         }
