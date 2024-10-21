@@ -1,12 +1,11 @@
 <?php
 // Handle CORS
-// กำหนด CORS headers
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header("Access-Control-Allow-Credentials: true");
 
-include 'db.php'; ////////////////////////////////////////////////////////////////// ทำต่อ
+include 'db.php';
 
 // กำหนดประเภทของ content ให้เป็น JSON
 header('Content-Type: application/json');
@@ -31,19 +30,19 @@ switch ($method) {
         if (isset($_GET['id'])) {
             // Handle Read by ID
             $id = $_GET['id'];
-            $stmt = $pdo->prepare('SELECT * FROM public.physicalcharacteristic WHERE physicalcharacteristicid = ?');
+            $stmt = $pdo->prepare('SELECT * FROM physicalcharacteristic WHERE characteristictypeid = ?');
             $stmt->execute([$id]);
-            $citizenships = $stmt->fetch();
-            if ($citizenships) {
-                sendResponse(200, $citizenships);
+            $physicalCharacteristic = $stmt->fetch();
+            if ($physicalCharacteristic) {
+                sendResponse(200, $physicalCharacteristic);
             } else {
-                sendResponse(404, [], 'not found');
+                sendResponse(404, [], 'Not found');
             }
         } else {
             // Handle Read all
-            $stmt = $pdo->query('SELECT * FROM public.physicalcharacteristic ORDER BY physicalcharacteristicid ASC');
-            $citizenships = $stmt->fetchAll();
-            sendResponse(200, $citizenships);
+            $stmt = $pdo->query('SELECT * FROM physicalcharacteristic ORDER BY characteristictypeid ASC');
+            $physicalCharacteristics = $stmt->fetchAll();
+            sendResponse(200, $physicalCharacteristics);
         }
         break;
 
@@ -52,20 +51,23 @@ switch ($method) {
         $data = json_decode(file_get_contents('php://input'), true);
 
         // ตรวจสอบว่ามีข้อมูลครบหรือไม่
-        if (isset($data['description'])) {
+        if (isset($data['characteristictypeid'], $data['fromdate'], $data['physicalcharacteristicvalue'])) {
 
+            if (!isset($data['thrudate'])) {
+                $data['thrudate'] = null;
+            }
 
-            // เตรียม statement ตอนเเรกลองเอาประโยค query เก็บในตัวเเปรก่อนค่อยนําไปใช้ จะทำให้ program bug
-            $stmt = $pdo->prepare("INSERT INTO public.personnametype(description) VALUES (?)");
+            // เตรียมคำสั่ง SQL
+            $stmt = $pdo->prepare("INSERT INTO physicalcharacteristic(characteristictypeid, fromdate, thrudate, physicalcharacteristicvalue) VALUES (?,?,?,?)");
 
-            // Execute คำสั่ง SQL พร้อมข้อมูลที่รับมา
-            $stmt->execute([$data['description']]);
+            // Execute SQL พร้อมข้อมูลที่รับมา
+            $stmt->execute([$data['characteristictypeid'], $data['fromdate'], $data['thrudate'], $data['physicalcharacteristicvalue']]);
 
             // ส่ง response กลับไปว่าเสร็จสิ้น
-            sendResponse(201, ['id' => $pdo->lastInsertId()], 'create success');
+            sendResponse(201, ['id' => $pdo->lastInsertId()], 'Create success');
         } else {
             // ส่ง response กลับไปว่า input ไม่ถูกต้อง
-            sendResponse(400, [], 'bad request');
+            sendResponse(400, [], 'Bad request');
         }
         break;
 
@@ -76,17 +78,21 @@ switch ($method) {
             $data = json_decode(file_get_contents('php://input'), true);
 
             // ตรวจสอบว่ามี resource ที่จะทำการอัปเดตหรือไม่
-            $selectStmt = $pdo->prepare('SELECT * FROM public.personnametype WHERE personnametypeid = ?');
+            $selectStmt = $pdo->prepare('SELECT * FROM physicalcharacteristic WHERE characteristictypeid = ?');
             $selectStmt->execute([$id]);
             $existingData = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($existingData) {
                 // ตรวจสอบว่าข้อมูลที่ส่งมามีครบหรือไม่
-                if (isset($data['description'])) {
+                if (isset($data['characteristictypeid'], $data['fromdate'], $data['physicalcharacteristicvalue'])) {
+
+                    if (!isset($data['thrudate'])) {
+                        $data['thrudate'] = null;
+                    }
 
                     // อัปเดตข้อมูลในฐานข้อมูล
-                    $stmt = $pdo->prepare('UPDATE public.personnametype SET description = ? WHERE personnametypeid = ?');
-                    $stmt->execute([$data['description'], $id]);
+                    $stmt = $pdo->prepare('UPDATE physicalcharacteristic SET fromdate = ?, thrudate = ?, physicalcharacteristicvalue = ? WHERE characteristictypeid = ?');
+                    $stmt->execute([$data['fromdate'], $data['thrudate'], $data['physicalcharacteristicvalue'], $id]);
 
                     // ดึงข้อมูลที่เพิ่งอัปเดต
                     $selectStmt->execute([$id]);
@@ -95,45 +101,40 @@ switch ($method) {
                     // ส่ง response กลับไปพร้อมข้อมูลที่อัปเดต
                     sendResponse(200, $updatedData, 'Resource updated');
                 } else {
-                    sendResponse(400, [], 'bad request json body invalid');
+                    sendResponse(400, [], 'Bad request JSON body invalid');
                 }
             } else {
                 sendResponse(404, [], 'Resource not found');
             }
         } else {
-            sendResponse(400, [], 'bad request: No ID params provided');
+            sendResponse(400, [], 'Bad request: No ID params provided');
         }
         break;
 
-
-
     case 'DELETE':
         // ตรวจสอบว่ามีการส่ง ID มาใน query หรือไม่
-        // หมายเหตุ ถ้าจะลบ ลบได้เฉพาะ ID ที่ citizenshipid ไม่ได้เรียกใช้
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
 
             // ดึงข้อมูลก่อนลบ
-            $selectStmt = $pdo->prepare('SELECT * FROM public.personnametype WHERE personnametypeid = ?');
+            $selectStmt = $pdo->prepare('SELECT * FROM physicalcharacteristic WHERE characteristictypeid = ?');
             $selectStmt->execute([$id]);
             $dataToDelete = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($dataToDelete) {
                 // ลบข้อมูล
-                $stmt = $pdo->prepare('DELETE FROM public.personnametype WHERE personnametypeid = ?');
+                $stmt = $pdo->prepare('DELETE FROM physicalcharacteristic WHERE characteristictypeid = ?');
                 $stmt->execute([$id]);
 
-
                 // ส่ง response กลับไปพร้อมข้อมูลที่ถูกลบ
-                sendResponse(200, $dataToDelete, 'deleted');
+                sendResponse(200, $dataToDelete, 'Deleted');
             } else {
                 sendResponse(404, [], 'Resource not found');
             }
         } else {
-            sendResponse(400, [], 'bad request: No ID params provided');
+            sendResponse(400, [], 'Bad request: No ID params provided');
         }
         break;
-
 
     default:
         // Method not supported
