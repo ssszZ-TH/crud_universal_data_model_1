@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# ถ้าหาไฟล์หรือโฟลเดอร์ไม่เจอให้ส่ง request ไปที่ index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rewrite all to index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
