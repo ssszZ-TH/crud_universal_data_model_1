@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../config/db.php'; // ดึง config ของ database
 
-class CitizenshipService
+class CITIZENSHIPmodel
 {
     private $pdo;
 

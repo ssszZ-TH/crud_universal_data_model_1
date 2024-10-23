@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../models/CitizenshipService.php'; // ดึง class CitizenshipService
+require __DIR__ . '/../models/CITIZENSHIPmodel.php'; // ดึง class CitizenshipService
 
 // กำหนดประเภทของ content ให้เป็น JSON
 header('Content-Type: application/json');
@@ -20,7 +20,7 @@ function sendResponse($status, $data = [], $message = '')
 $method = $_SERVER['REQUEST_METHOD'];
 
 // สร้าง instance ของ service
-$citizenshipService = new CitizenshipService($pdo);
+$citizenshipService = new CITIZENSHIPmodel($pdo);
 
 switch ($method) {
     case 'GET':

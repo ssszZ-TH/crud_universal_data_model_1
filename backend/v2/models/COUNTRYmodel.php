@@ -1,12 +1,13 @@
 <?php
-require_once(realpath(dirname(__FILE__)) . '/CITIZENSHIP.php');
+
+require __DIR__ . '/../config/db.php'; // ดึง config ของ database
 
 
 /**
  * @access public
  * @author ssszz
  */
-class COUNTRY {
+class COUNTRYmodel {
 	/**
 	 * @AttributeType int
 	 */
