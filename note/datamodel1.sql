@@ -19,3 +19,148 @@ ALTER TABLE CITIZENSHIP ADD CONSTRAINT FKCITIZENSHI258123 FOREIGN KEY (COUNTRYco
 ALTER TABLE CITIZENSHIP ADD CONSTRAINT FKCITIZENSHI141419 FOREIGN KEY (PASSPORTpassportid) REFERENCES PASSPORT (passportid);
 ALTER TABLE PERSON ADD CONSTRAINT FKPERSON74091 FOREIGN KEY (CITIZENSHIPcitizenshipid) REFERENCES CITIZENSHIP (citizenshipid);
 ALTER TABLE PERSON ADD CONSTRAINT FKPERSON767757 FOREIGN KEY (GENDERTYPEgendertypeid) REFERENCES GENDERTYPE (gendertypeid);
+
+
+-- insert example data
+
+INSERT INTO MARITALSTATUSTYPE (description) VALUES
+('Single'),
+('Married'),
+('Divorced'),
+('Widowed'),
+('Separated'),
+('Engaged'),
+('In a relationship'),
+('Complicated'),
+('Partnered'),
+('Other');
+
+INSERT INTO MARITALSTATUS (fromdate, thrudate, MARITALSTATUSTYPEmaritalstatustypeid) VALUES
+('2020-01-01', '2021-01-01', 1),
+('2021-02-01', NULL, 2),
+('2019-03-15', '2020-02-15', 3),
+('2022-04-10', NULL, 4),
+('2018-05-20', '2019-05-20', 5),
+('2023-06-25', NULL, 6),
+('2017-07-30', '2018-07-30', 7),
+('2022-08-05', NULL, 8),
+('2021-09-12', '2022-09-12', 9),
+('2023-10-18', NULL, 10);
+
+INSERT INTO PHYSICALCHARACTORISTICTYPE (description) VALUES
+('Height'),
+('Weight'),
+('Eye Color'),
+('Hair Color'),
+('Shoe Size'),
+('Blood Type'),
+('Skin Tone'),
+('Body Type'),
+('Handedness'),
+('Vision');
+
+INSERT INTO PHYSICALCHARACTORISTIC (fromdate, thrudate, value, PHYSICALCHARACTORISTICTYPEcharactoristictypeid) VALUES
+('2022-01-01', NULL, 175.5, 1),
+('2021-02-15', '2022-02-15', 70.3, 2),
+('2020-03-20', NULL, 1, 3),
+('2019-04-25', '2020-04-25', 2, 4),
+('2023-05-30', NULL, 42, 5),
+('2018-06-12', '2019-06-12', 0, 6),
+('2021-07-05', NULL, 3, 7),
+('2017-08-17', '2018-08-17', 2, 8),
+('2022-09-21', NULL, 1, 9),
+('2023-10-22', '2024-10-22', 1, 10);
+
+INSERT INTO PERSONNAMETYPE (description) VALUES
+('Full Name'),
+('First Name'),
+('Last Name'),
+('Middle Name'),
+('Nickname'),
+('Alias'),
+('Legal Name'),
+('Previous Name'),
+('Birth Name'),
+('Adopted Name');
+
+INSERT INTO PERSONNAME (fromdate, thrudate, fullname, PERSONNAMETYPEpersonnametypeid) VALUES
+('2022-01-01', NULL, 'John Doe', 1),
+('2021-02-15', '2022-02-15', 'Jane Smith', 2),
+('2020-03-20', NULL, 'Robert Brown', 3),
+('2019-04-25', '2020-04-25', 'Emily Davis', 4),
+('2023-05-30', NULL, 'Michael Johnson', 5),
+('2018-06-12', '2019-06-12', 'David Wilson', 6),
+('2021-07-05', NULL, 'Mary Lee', 7),
+('2017-08-17', '2018-08-17', 'Daniel Martinez', 8),
+('2022-09-21', NULL, 'Sophia Garcia', 9),
+('2023-10-22', '2024-10-22', 'Chris Robinson', 10);
+
+INSERT INTO COUNTRY (isocode, countryname) VALUES
+('US', 'United States'),
+('CA', 'Canada'),
+('GB', 'United Kingdom'),
+('AU', 'Australia'),
+('FR', 'France'),
+('DE', 'Germany'),
+('JP', 'Japan'),
+('CN', 'China'),
+('IN', 'India'),
+('BR', 'Brazil');
+
+INSERT INTO PASSPORT (pasportnum, fromdate, thrudate) VALUES
+('A12345678', '2020-01-01', '2030-01-01'),
+('B87654321', '2021-02-15', '2031-02-15'),
+('C11223344', '2019-03-20', '2029-03-20'),
+('D99887766', '2022-04-25', '2032-04-25'),
+('E44556677', '2018-05-30', '2028-05-30'),
+('F77889900', '2023-06-12', '2033-06-12'),
+('G55667788', '2021-07-05', '2031-07-05'),
+('H33221100', '2017-08-17', '2027-08-17'),
+('I99887722', '2022-09-21', '2032-09-21'),
+('J77665544', '2023-10-22', '2033-10-22');
+
+INSERT INTO GENDERTYPE (gendercode, description) VALUES
+('M', 'Male'),
+('F', 'Female'),
+('N', 'Non-binary'),
+('O', 'Other'),
+('P', 'Prefer not to say'),
+('T', 'Transgender'),
+('X', 'Genderqueer'),
+('A', 'Agender'),
+('B', 'Bigender'),
+('G', 'Genderfluid');
+
+INSERT INTO CITIZENSHIP (fromdate, thrudate, COUNTRYcountryid, PASSPORTpassportid) VALUES
+('2020-01-01', NULL, 1, 1),
+('2021-02-15', '2031-02-15', 2, 2),
+('2019-03-20', '2029-03-20', 3, 3),
+('2022-04-25', '2032-04-25', 4, 4),
+('2018-05-30', '2028-05-30', 5, 5),
+('2023-06-12', '2033-06-12', 6, 6),
+('2021-07-05', '2031-07-05', 7, 7),
+('2017-08-17', '2027-08-17', 8, 8),
+('2022-09-21', '2032-09-21', 9, 9),
+('2023-10-22', '2033-10-22', 10, 10);
+
+INSERT INTO PERSON (birthdate, mothersmaidenname, socialsecurityno, totalyearworkexperience, comment, MARITALSTATUSmaritalstatusid, PHYSICALCHARACTORISTICphysicalcharactoristicid, PERSONNAMEpersonnameid, CITIZENSHIPcitizenshipid, GENDERTYPEgendertypeid) VALUES
+('1990-01-01', 'Johnson', '123-45-6789', 10, 'No comments', 1, 1, 1, 1, 1),
+('1985-02-15', 'Smith', '234-56-7890', 15, 'Employee of the Month', 2, 2, 2, 2, 2),
+('1978-03-20', 'Brown', '345-67-8901', 20, 'Excellent performance', 3, 3, 3, 3, 3),
+('1995-04-25', 'Davis', '456-78-9012', 5, 'Promising talent', 4, 4, 4, 4, 1),
+('2000-05-30', 'Wilson', '567-89-0123', 2, 'Recent graduate', 5, 5, 5, 5, 2),
+('1988-06-12', 'Taylor', '678-90-1234', 12, 'Punctual and reliable', 6, 6, 6, 6, 3),
+('1975-07-05', 'Moore', '789-01-2345', 25, 'Veteran employee', 7, 7, 7, 7, 4),
+('1993-08-17', 'Miller', '890-12-3456', 8, 'Team player', 8, 8, 8, 8, 5),
+('1980-09-21', 'Garcia', '901-23-4567', 18, 'Good communication skills', 9, 9, 9, 9, 1),
+('1998-10-22', 'Martinez', '012-34-5678', 4, 'Creative thinker', 10, 10, 10, 10, 2),
+('1992-11-11', 'Robinson', '123-45-6789', 9, 'Quick learner', 1, 1, 11, 1, 3),
+('1984-12-15', 'Clark', '234-56-7890', 16, 'Highly motivated', 2, 2, 12, 2, 4),
+('1977-01-20', 'Rodriguez', '345-67-8901', 22, 'Strong leadership', 3, 3, 13, 3, 5),
+('1996-02-25', 'Lewis', '456-78-9012', 6, 'Detail-oriented', 4, 4, 14, 4, 1),
+('1999-03-30', 'Walker', '567-89-0123', 3, 'Recent hire', 5, 5, 15, 5, 2),
+('1986-04-12', 'Hall', '678-90-1234', 13, 'Reliable', 6, 6, 16, 6, 3),
+('1974-05-05', 'Allen', '789-01-2345', 26, 'Experienced professional', 7, 7, 17, 7, 4),
+('1991-06-18', 'Young', '890-12-3456', 10, 'Innovative', 8, 8, 18, 8, 5),
+('1983-07-22', 'Hernandez', '901-23-4567', 17, 'Team leader', 9, 9, 19, 9, 1),
+('1994-08-29', 'King', '012-34-5678', 7, 'Goal-oriented', 10, 10, 20, 10, 2);
