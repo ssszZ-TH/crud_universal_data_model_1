@@ -41,35 +41,60 @@ class CITIZENSHIPmodel
         );
 
         // Execute คำสั่ง SQL พร้อมข้อมูลที่รับมา
-        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countrycountryid'], $data['passportpassportid']]);
-        
+        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid']]);
+
         // คืนค่า id ที่เพิ่งเพิ่มเข้าไป
         return $this->pdo->lastInsertId();
     }
 
     // UPDATE: อัปเดตข้อมูล
+    // UPDATE: อัปเดตข้อมูล
     public function update($id, $data)
     {
+        // อัปเดตข้อมูล
         $stmt = $this->pdo->prepare(
             'UPDATE public.citizenship 
-             SET fromdate = ?, thrudate = ?, countrycountryid = ?, passportpassportid = ? 
-             WHERE citizenshipid = ?'
+         SET fromdate = ?, thrudate = ?, countrycountryid = ?, passportpassportid = ? 
+         WHERE citizenshipid = ?'
         );
 
-        // Execute คำสั่ง SQL พร้อมข้อมูลที่รับมา
-        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countrycountryid'], $data['passportpassportid'], $id]);
-        
-        // คืนค่าจำนวนแถวที่ได้รับผลกระทบ
-        return $stmt->rowCount();
+        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid'], $id]);
+
+        // ตรวจสอบว่ามีการอัปเดตข้อมูลหรือไม่
+        if ($stmt->rowCount() > 0) {
+            // ดึงข้อมูลที่เพิ่งถูกอัปเดตกลับมา
+            return $this->getById($id);
+        } else {
+            // ถ้าไม่มีการอัปเดต ให้คืนค่าข้อความแจ้งเตือน
+            return ['message' => 'No changes made or record not found.'];
+        }
     }
 
+
+    // DELETE: ลบข้อมูล
     // DELETE: ลบข้อมูล
     public function delete($id)
     {
+        // ดึงข้อมูลก่อนลบเพื่อคืนค่ากลับไปหลังจากลบ
+        $citizenship = $this->getById($id);
+
+        // ถ้าไม่พบข้อมูล ให้คืนข้อความแจ้งเตือน
+        if (!$citizenship) {
+            return ['message' => 'Record not found.'];
+        }
+
+        // ลบข้อมูล
         $stmt = $this->pdo->prepare('DELETE FROM public.citizenship WHERE citizenshipid = ?');
         $stmt->execute([$id]);
-        
-        // คืนค่าจำนวนแถวที่ถูกลบ
-        return $stmt->rowCount();
+
+        // ตรวจสอบว่ามีการลบข้อมูลหรือไม่
+        if ($stmt->rowCount() > 0) {
+            // คืนค่าข้อมูลที่ถูกลบ
+            return $citizenship;
+        } else {
+            // ถ้าไม่มีการลบ ให้คืนข้อความแจ้งเตือน
+            return ['message' => 'Failed to delete the record.'];
+        }
     }
+
 }
