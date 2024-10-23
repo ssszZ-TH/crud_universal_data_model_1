@@ -29,20 +29,37 @@ class CitizenshipService
     // CREATE: เพิ่มข้อมูลใหม่
     public function create($data)
     {
+        // ตรวจสอบว่ามี thrudate หรือไม่ ถ้าไม่มีให้กำหนดเป็น null
         if (!isset($data['thrudate'])) {
             $data['thrudate'] = null;
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO public.citizenship(fromdate, thrudate, countryid, passportid) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid']]);
+        // เตรียมคำสั่ง SQL สำหรับการเพิ่มข้อมูลใหม่
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO public.citizenship (fromdate, thrudate, countrycountryid, passportpassportid)
+             VALUES (?, ?, ?, ?)"
+        );
+
+        // Execute คำสั่ง SQL พร้อมข้อมูลที่รับมา
+        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countrycountryid'], $data['passportpassportid']]);
+        
+        // คืนค่า id ที่เพิ่งเพิ่มเข้าไป
         return $this->pdo->lastInsertId();
     }
 
     // UPDATE: อัปเดตข้อมูล
     public function update($id, $data)
     {
-        $stmt = $this->pdo->prepare('UPDATE public.citizenship SET fromdate = ?, thrudate = ?, countryid = ?, passportid = ? WHERE citizenshipid = ?');
-        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countryid'], $data['passportid'], $id]);
+        $stmt = $this->pdo->prepare(
+            'UPDATE public.citizenship 
+             SET fromdate = ?, thrudate = ?, countrycountryid = ?, passportpassportid = ? 
+             WHERE citizenshipid = ?'
+        );
+
+        // Execute คำสั่ง SQL พร้อมข้อมูลที่รับมา
+        $stmt->execute([$data['fromdate'], $data['thrudate'], $data['countrycountryid'], $data['passportpassportid'], $id]);
+        
+        // คืนค่าจำนวนแถวที่ได้รับผลกระทบ
         return $stmt->rowCount();
     }
 
@@ -51,6 +68,8 @@ class CitizenshipService
     {
         $stmt = $this->pdo->prepare('DELETE FROM public.citizenship WHERE citizenshipid = ?');
         $stmt->execute([$id]);
+        
+        // คืนค่าจำนวนแถวที่ถูกลบ
         return $stmt->rowCount();
     }
 }
