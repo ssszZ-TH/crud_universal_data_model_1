@@ -30,6 +30,10 @@ switch ($method) {
         } else {
             $result = $genderModel->getAll();
         }
+        if (!$result) {
+            sendResponse(404, [], 'not found');
+            break;
+        }
         sendResponse(200, $result);
         break;
 
